@@ -1,0 +1,120 @@
+---
+title: "Project 1"
+author: "Jacob Mason"
+date: "2025-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This project is a basic exploratory analysis of four facilities with Cost of Non-Conformance and Production data.  This data is completely manufactured (fictonal) but many of the techniques that are used can translate into real projects.  This is for a submission to PSTAT and uses manufactured data because the facility in which I work will not allow any actual data to be released. 
+
+
+
+```{r}
+
+getwd()
+
+library(tidyverse)
+
+library(rvest)
+
+library(readxl)
+
+library(ggplot2)
+
+library(gt)
+
+```
+
+```{r}
+
+Data_Path <- "C:/Users/user/Desktop/PSTAT/cost_nonconformance_data.csv"
+
+Cost_NonConformance_Data <- read_csv(Data_Path)
+
+summary(Cost_NonConformance_Data)
+
+print(head(Cost_NonConformance_Data))
+
+#Means <- Cost_NonConformance_Data |> group_by(Facility) |> summarise(mean_cost_nc = mean(`Cost of Non-Conformance (%)`), mean_pro_rate = mean(`Production Rate (%)`))
+
+
+ ggplot(Cost_NonConformance_Data, aes(x = `Cost of Non-Conformance (%)`, fill = Facility)) +
+  geom_density(alpha = 0.6) +
+  labs(title = "Distribution of Cost of Non-Conformance by Facility",
+       x = "Cost of Non-Conformance (%)",
+       y = "Density") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+ggplot(Cost_NonConformance_Data, aes(x = `Cost of Non-Conformance (%)`, fill = Facility, color = Facility)) +
+  geom_density(alpha = 0.4) +
+  facet_wrap(~ Facility) +
+  labs(title = "Distribution of Cost of Non-Conformance by Facility",
+       x = "Cost of Non-Conformance (%)",
+       y = "Density") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(Cost_NonConformance_Data, aes(x = Facility, y = `Cost of Non-Conformance (%)`, fill = Facility)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(title = "Boxplot of Cost of Non-Conformance by Facility",
+       x = "Facility",
+       y = "Cost of Non-Conformance (%)") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+```
+
+```{r}
+
+summary_stats <- Cost_NonConformance_Data %>%
+  group_by(Facility) %>%
+  summarise(
+    Count = n(),
+    Mean = round(mean(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Median = round(median(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    SD = round(sd(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Min = round(min(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Max = round(max(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2)
+  )
+
+
+summary_stats %>%
+  gt() %>%
+  tab_header(
+    title = "Summary Statistics for Cost of Non-Conformance by Facility"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, Median, SD, Min, Max),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Count = "Observations",
+    Mean = "Mean (%)",
+    Median = "Median (%)",
+    SD = "Std. Dev (%)",
+    Min = "Min (%)",
+    Max = "Max (%)"
+  ) %>%
+  tab_options(
+    table.font.size = px(14),
+    heading.title.font.size = px(16)
+  )
+
+
+```
+
+
+
+
+
+
