@@ -1,0 +1,89 @@
+---
+title: "Model Building Example PSTAT App"
+author: "Jacob Mason"
+date: "2025-03-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+library(readr)
+
+library(ggplot2)
+
+library(dplyr)
+
+library(skimr)
+```
+
+
+
+
+
+
+
+```{r}
+
+file_path <- "C:/Users/user/Desktop/PSTAT/process_data.csv"
+
+process_data <- read.csv(file_path)
+
+head(process_data)
+
+summary(process_data)
+
+colnames(process_data)
+
+process_data <- process_data %>%
+  rename( Production_Output = Purity_Output....)
+
+
+
+skim_data <-skim(process_data)
+
+colnames(skim_data)
+
+skim_output <- skim(process_data) %>%
+  select(skim_variable, n_missing, complete_rate, numeric.mean, numeric.sd, numeric.p0, numeric.p50, numeric.p100) %>% mutate_if(is.numeric, ~round(., 2))
+
+skim_output
+
+```
+
+```{r}
+long_data <- pivot_longer(process_data, cols = - Production_Output , names_to = "Input_Variable", values_to = "Value")
+
+# Create facet-wrapped plots
+ggplot(long_data, aes(x = Value, y = Production_Output)) +
+  geom_point(alpha = 0.6) +  # Scatter plot with transparency
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue") +  # Add linear trend line
+  facet_wrap(~Input_Variable, scales = "free_x") +  # Create separate plots per input
+  labs(title = "Relationship between Input Variables and Production Output",
+       x = "Input Variable Value",
+       y = "Production Output") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(long_data, aes(x = Value)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "black", alpha = 0.7) +  
+  facet_wrap(~Input_Variable, scales = "free") +  
+  labs(title = "Distribution of Input Variables",
+       x = "Value",
+       y = "Count") +
+  theme_minimal()
+```
+```{r}
+ggplot(process_data, aes(x = Production_Output)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Production Output",
+       x = "Production Output",
+       y = "Frequency") +
+  theme_minimal()
+```
+
