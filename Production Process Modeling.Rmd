@@ -9,6 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+
+
 ```{r}
 library(tidyverse)
 
@@ -19,6 +23,9 @@ library(ggplot2)
 library(dplyr)
 
 library(skimr)
+
+library(sjPlot)
+
 ```
 
 
@@ -86,4 +93,65 @@ ggplot(process_data, aes(x = Production_Output)) +
        y = "Frequency") +
   theme_minimal()
 ```
+
+```{r}
+
+process_data$Input_3 <- as.factor(process_data$Input_3)
+process_data$Input_5 <- as.factor(process_data$Input_5)
+
+process_data$Input_4 <- as.factor(process_data$Input_4)
+
+model <- lm(Production_Output ~ ., data = process_data)
+
+summary(model)
+
+
+predictions <- predict(model, process_data)
+head(predictions)
+
+tab_model(model, show.ci = FALSE, show.se = TRUE, show.fstat = TRUE, digits = 3)
+
+```
+
+
+
+
+
+
+
+```{r}
+
+library(corrplot)
+
+
+# Select only input variables
+input_vars <- process_data[, c("Input_1", "Input_2", "Input_3", "Input_5", "Input_6")]
+
+# Convert binomial inputs to numeric (if necessary)
+input_vars$Input_3 <- as.numeric(as.factor(input_vars$Input_3)) - 1
+input_vars$Input_5 <- as.numeric(as.factor(input_vars$Input_5)) - 1
+
+
+# Compute correlation matrix
+cor_matrix <- cor(input_vars)
+
+# Print the correlation matrix
+print(cor_matrix)
+
+# Visualize correlation matrix
+corrplot(cor_matrix, method = "color", addCoef.col = "black", tl.col = "black", number.cex = 0.7)
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
 
