@@ -1,0 +1,227 @@
+---
+title: "Project 1"
+author: "Jacob Mason"
+date: "2025-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This project is a basic exploratory analysis of four facilities with Cost of Non-Conformance and Production data.  This data is completely manufactured (fictonal) but many of the techniques that are used can translate into real projects.  This is for a submission to PSTAT and uses manufactured data because the facility in which I work will not allow any actual data to be released. 
+
+
+
+```{r}
+
+getwd()
+
+library(tidyverse)
+
+library(rvest)
+
+library(readxl)
+
+library(ggplot2)
+
+library(gt)
+
+```
+
+```{r}
+
+Data_Path <- "C:/Users/user/Desktop/PSTAT/cost_nonconformance_data.csv"
+
+Cost_NonConformance_Data <- read_csv(Data_Path)
+
+summary(Cost_NonConformance_Data)
+
+print(head(Cost_NonConformance_Data))
+
+#Means <- Cost_NonConformance_Data |> group_by(Facility) |> summarise(mean_cost_nc = mean(`Cost of Non-Conformance (%)`), mean_pro_rate = mean(`Production Rate (%)`))
+
+
+ ggplot(Cost_NonConformance_Data, aes(x = `Cost of Non-Conformance (%)`, fill = Facility)) +
+  geom_density(alpha = 0.6) +
+  labs(title = "Distribution of Waste by Facility",
+       x = "Waste",
+       y = "Density") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+ggplot(Cost_NonConformance_Data, aes(x = `Cost of Non-Conformance (%)`, fill = Facility, color = Facility)) +
+  geom_density(alpha = 0.4) +
+  facet_wrap(~ Facility) +
+  labs(title = "Distribution of Waste by Facility",
+       x = "Waste",
+       y = "Density") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(Cost_NonConformance_Data, aes(x = Facility, y = `Cost of Non-Conformance (%)`, fill = Facility)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(title = "Boxplot of Waste",
+       x = "Facility",
+       y = "Waste") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+```
+
+```{r}
+
+summary_stats <- Cost_NonConformance_Data %>%
+  group_by(Facility) %>%
+  summarise(
+    Count = n(),
+    Mean = round(mean(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Median = round(median(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    SD = round(sd(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Min = round(min(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2),
+    Max = round(max(`Cost of Non-Conformance (%)`, na.rm = TRUE), 2)
+  )
+
+
+summary_stats %>%
+  gt() %>%
+  tab_header(
+    title = "Summary Statistics for Waste by Facility"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, Median, SD, Min, Max),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Count = "Observations",
+    Mean = "Mean (%)",
+    Median = "Median (%)",
+    SD = "Std. Dev (%)",
+    Min = "Min (%)",
+    Max = "Max (%)"
+  ) %>%
+  tab_options(
+    table.font.size = px(14),
+    heading.title.font.size = px(16)
+  )
+
+
+```
+
+
+```{r}
+ ggplot(Cost_NonConformance_Data, aes(x = `Production Rate (%)`, fill = Facility)) +
+  geom_density(alpha = 0.6) +
+  labs(title = "Distribution of Production by Facility",
+       x = "Production Rate (%)",
+       y = "Density") +
+  theme_minimal()
+```
+
+
+```{r}
+ggplot(Cost_NonConformance_Data, aes(x = `Production Rate (%)`, fill = Facility, color = Facility)) +
+  geom_density(alpha = 0.4) +
+  facet_wrap(~ Facility) +
+  labs(title = "Distribution of Production Rate by Facility",
+       x = "Production Rate (%)",
+       y = "Density") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(Cost_NonConformance_Data, aes(x = Facility, y = `Production Rate (%)`, fill = Facility)) +
+  geom_boxplot(alpha = 0.6) +
+  labs(title = "Boxplot of Production",
+       x = "Facility",
+       y = "Production") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+```
+
+```{r}
+summary_stats2 <- Cost_NonConformance_Data %>%
+  group_by(Facility) %>%
+  summarise(
+    Count = n(),
+    Mean = round(mean(`Production Rate (%)`, na.rm = TRUE), 2),
+    Median = round(median(`Production Rate (%)`, na.rm = TRUE), 2),
+    SD = round(sd(`Production Rate (%)`, na.rm = TRUE), 2),
+    Min = round(min(`Production Rate (%)`, na.rm = TRUE), 2),
+    Max = round(max(`Production Rate (%)`, na.rm = TRUE), 2)
+  )
+
+
+summary_stats2 %>%
+  gt() %>%
+  tab_header(
+    title = "Summary Statistics for Production by Facility"
+  ) %>%
+  fmt_number(
+    columns = c(Mean, Median, SD, Min, Max),
+    decimals = 2
+  ) %>%
+  cols_label(
+    Count = "Observations",
+    Mean = "Mean (%)",
+    Median = "Median (%)",
+    SD = "Std. Dev (%)",
+    Min = "Min (%)",
+    Max = "Max (%)"
+  ) %>%
+  tab_options(
+    table.font.size = px(14),
+    heading.title.font.size = px(16)
+  )
+
+```
+
+
+```{r}
+ggplot(Cost_NonConformance_Data, aes(x = `Production Rate (%)`, y = `Cost of Non-Conformance (%)`)) +
+  geom_point(size = 3, alpha = 0.7, color = "blue") +
+  labs(title = "Waste vs. Production by Facility",
+       x = "Production",
+       y = "Waste") +
+  theme_minimal() +
+  facet_wrap(~Facility)
+```
+
+
+```{r}
+correlation_results <- Cost_NonConformance_Data %>%
+  group_by(Facility) %>%
+  summarize(correlation = cor(`Production Rate (%)`, `Cost of Non-Conformance (%)`, use = "complete.obs"))
+
+# Print the results
+print(correlation_results)
+
+correlation_results %>%
+  gt() %>%
+  tab_header(
+    title = md("**Correlation Between Production Rate and Cost of Non-Conformance by Facility**"),
+    subtitle = "Pearson correlation coefficients for each facility"
+  ) %>%
+  fmt_number(
+    columns = "correlation",
+    decimals = 3
+  ) %>%
+  cols_label(
+    Facility = "Facility",
+    correlation = "Correlation with Waste"
+  ) %>%
+  tab_options(
+    table.font.size = "medium",
+    heading.align = "center"
+  )
+
+```
+
+
+
+
